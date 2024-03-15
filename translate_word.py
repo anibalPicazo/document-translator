@@ -1,15 +1,15 @@
-import docx2txt
+import docx
 from googletrans import Translator
 
 def translate_word_file(input_file, output_file, target_language):
     # Read the content of the Word file
     try:
-        text = docx2txt.process(input_file)
-    except KeyError as e:
-        print(f"Error reading the Word file: {e}. Ensure the file is a valid Word document.")
-        return
+        doc = docx.Document(input_file)
+        text = ""
+        for paragraph in doc.paragraphs:
+            text += paragraph.text + "\n"
     except Exception as e:
-        print(f"Unexpected error reading the Word file: {e}")
+        print(f"Error reading the Word file: {e}")
         return
 
     # Translate the content
@@ -22,8 +22,10 @@ def translate_word_file(input_file, output_file, target_language):
 
     # Save the translated text to a new Word file
     try:
-        with open(output_file, 'w', encoding='utf-8') as output:
-            output.write(translated_text)
+        translated_doc = docx.Document()
+        for translated_paragraph in translated_text.split("\n"):
+            translated_doc.add_paragraph(translated_paragraph)
+        translated_doc.save(output_file)
         print(f"Translation saved to {output_file}")
     except Exception as e:
         print(f"Error saving the translated content: {e}")
@@ -31,7 +33,7 @@ def translate_word_file(input_file, output_file, target_language):
 if __name__ == "__main__":
     # Get input parameters from the command line
     input_file = input("Enter the path to the Word file: ").strip()
-    output_file = input("Enter the path to save the translated Word file: ").strip()
+    output_file = input("Enter the path to save the translated Word file (include .docx extension): ").strip()
     target_language = input("Enter the target language (e.g., 'fr' for French): ").strip()
 
     # Call the translation function
